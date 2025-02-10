@@ -90,7 +90,7 @@ namespace
 
         if (deck.hasKeyword("ACTNUM")) {
             g.actnum = &deck["ACTNUM"].back().getIntData()[0];
-            grid.processEclipseFormat(g, /* remove_ij_boundary = */ false,
+            grid.processEclipseFormat(g, /* remove_ij_bounary = */ false,
                                       /* turn_normals = */ false,
                                       /* edge_conformal = */ false);
         }
@@ -99,7 +99,7 @@ namespace
                 std::vector<int>(g.dims[0] * g.dims[1] * g.dims[2], 1);
 
             g.actnum = dflt_actnum.data();
-            grid.processEclipseFormat(g, /* remove_ij_boundary = */ false,
+            grid.processEclipseFormat(g, /* remove_ij_bounary = */ false,
                                       /* turn_normals = */ false,
                                       /* edge_conformal = */ false);
         }
