@@ -40,11 +40,11 @@ namespace Elasticity {
 
 #if defined(HAVE_SUITESPARSE_UMFPACK)
 typedef Dune::UMFPack<Matrix> LUSolver;
-  //#elif defined(HAVE_SUPERLU)
-// typedef Dune::SuperLU<Matrix> LUSolver;
-// #else
-// static_assert(false, "Enable either SuperLU or UMFPACK");
-// #endif
+#elif defined(HAVE_SUPERLU)
+  typedef Dune::SuperLU<Matrix> LUSolver;
+#else
+ static_assert(false, "Enable either SuperLU or UMFPACK");
+#endif
 
 //! \brief A linear operator
 typedef Dune::MatrixAdapter<Matrix,Vector,Vector> Operator;
