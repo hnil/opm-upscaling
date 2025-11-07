@@ -113,7 +113,7 @@ void Elasticity<GridType>::getStressVector(Dune::FieldVector<ctype,comp>& sigma,
   sigma = Dune::FMatrixHelp::mult(C,Dune::FMatrixHelp::mult(B,v)+eps0);
 }
 
-Dune::FieldVector<double,3> waveSpeeds(const Dune::FieldMatrix<double,6,6>& C, double phi, double theta, double density)
+inline Dune::FieldVector<double,3> waveSpeeds(const Dune::FieldMatrix<double,6,6>& C, double phi, double theta, double density)
 {
   const double r = 1;
   Dune::FieldVector<double, 3> x;
