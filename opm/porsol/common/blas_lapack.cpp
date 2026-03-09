@@ -47,8 +47,8 @@ void GEMV<double>(const char*   transA,
 {
     assert((transA[0] == 'N') || (transA[0] == 'T'));
 
-    DGEMV(F77_CHARACTER(transA[0]),
-          &m, &n, &a1, A, &ldA, x, &incX, &a2, y, &incY);
+    FC_GLOBAL(dgemv,DGEMV)(F77_CHARACTER(transA[0]),
+                           &m, &n, &a1, A, &ldA, x, &incX, &a2, y, &incY);
 }
 
 template<>
@@ -61,8 +61,8 @@ void GEMM<double>(const char*   transA, const char*   transB,
     assert((transA[0] == 'N') || (transA[0] == 'T'));
     assert((transB[0] == 'N') || (transB[0] == 'T'));
 
-    DGEMM(F77_CHARACTER(transA[0]), F77_CHARACTER(transB[0]),
-          &m, &n, &k, &a1, A, &ldA, B, &ldB, &a2, C, &ldC);
+    FC_GLOBAL(dgemm,DGEMM)(F77_CHARACTER(transA[0]), F77_CHARACTER(transB[0]),
+                           &m, &n, &k, &a1, A, &ldA, B, &ldB, &a2, C, &ldC);
 }
 
 template<>
@@ -74,8 +74,8 @@ void SYRK<double>(const char*   uplo, const char*   trans,
     assert((uplo[0]  == 'U') || (uplo[0]  == 'L'));
     assert((trans[0] == 'N') || (trans[0] == 'T'));
 
-    DSYRK(F77_CHARACTER(uplo[0]), F77_CHARACTER(trans[0]),
-          &n, &k, &a1, A, &ldA, &a2, C, &ldC);
+    FC_GLOBAL(dsyrk,DSYRK)(F77_CHARACTER(uplo[0]), F77_CHARACTER(trans[0]),
+                           &n, &k, &a1, A, &ldA, &a2, C, &ldC);
 }
 
 template<>
@@ -90,9 +90,9 @@ void TRMM<double>(const char*   side  , const char* uplo,
     assert((transA[0] == 'N') || (transA[0] == 'T'));
     assert((diag[0]   == 'N') || (diag[0]   == 'U'));
 
-    DTRMM(F77_CHARACTER(side[0])  , F77_CHARACTER(uplo[0]),
-          F77_CHARACTER(transA[0]), F77_CHARACTER(diag[0]),
-          &m, &n, &a, A, &ldA, B, &ldB);
+    FC_GLOBAL(dtrmm,DTRMM)(F77_CHARACTER(side[0])  , F77_CHARACTER(uplo[0]),
+                           F77_CHARACTER(transA[0]), F77_CHARACTER(diag[0]),
+                           &m, &n, &a, A, &ldA, B, &ldB);
 }
 
 template<>
@@ -101,7 +101,7 @@ void GEQRF<double>(const int     m    , const int     n   ,
                          double* tau  ,       double* work,
                    const int     lwork,       int&    info)
 {
-    DGEQRF(&m, &n, A, &ld, tau, work, &lwork, &info);
+    FC_GLOBAL(dgeqrf,DGEQRF)(&m, &n, A, &ld, tau, work, &lwork, &info);
 }
 
 template<>
@@ -109,21 +109,21 @@ void ORGQR<double>(const int     m   , const int n    , const int     k  ,
                          double* A   , const int ld   , const double* tau,
                          double* work, const int lwork,       int&    info)
 {
-    DORGQR(&m, &n, &k, A, &ld, tau, work, &lwork, &info);
+    FC_GLOBAL(dorgqr,DORGQR)(&m, &n, &k, A, &ld, tau, work, &lwork, &info);
 }
 
 template<>
 void GETRF<double>(const int m, const int n , double* A,
                    const int ld, int* ipiv, int& info)
 {
-    DGETRF(&m, &n, A, &ld, ipiv, &info);
+    FC_GLOBAL(dgetrf,DGETRF)(&m, &n, A, &ld, ipiv, &info);
 }
 
 template<>
 void GETRI(const int  n   , double* A   , const int ld,
            const int* ipiv, double* work, int lwork, int& info)
 {
-    DGETRI(&n, A, &ld, ipiv, work, &lwork, &info);
+    FC_GLOBAL(dgetri,DGETRI)(&n, A, &ld, ipiv, work, &lwork, &info);
 }
 
 }
