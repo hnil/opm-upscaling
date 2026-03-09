@@ -36,6 +36,10 @@
 #ifndef OPENRS_BLAS_LAPACK_HEADER
 #define OPENRS_BLAS_LAPACK_HEADER
 
+#if ! __has_include(<FCMacros.h>)
+#error "Need FCMacros.h to be generated through FortranCInterface"
+#endif
+
 #include <opm/common/ErrorMacros.hpp>
 #include <opm/porsol/common/fortran.hpp>
 
@@ -43,96 +47,57 @@
 extern "C" {
 #endif
 
-#ifdef DGEMV
-#undef DGEMV
-#endif
-#define  DGEMV F77_NAME(dgemv,DGEMV)
+#include <FCMacros.h>
 
-    // y <- a1*op(A)*x + a2*y  where  op(X) in {X, X.'}
-    void DGEMV(F77_CHARACTER_TYPE,
-               const int*    m   , const int*    n,
-               const double* a1  , const double* A, const int* ldA ,
-                                   const double* x, const int* incX,
-               const double* a2  ,       double* y, const int* incY);
+#define F77_CHARACTER_TYPE const char*
 
+// y <- a1*op(A)*x + a2*y  where  op(X) in {X, X.'}
+void FC_GLOBAL(dgemv,DGEMV)(F77_CHARACTER_TYPE,
+                            const int*    m   , const int*    n,
+                            const double* a1  , const double* A, const int* ldA ,
+                            const double* x, const int* incX,
+                            const double* a2  ,       double* y, const int* incY);
 
-#ifdef DGEMM
-#undef DGEMM
-#endif
-#define  DGEMM F77_NAME(dgemm,DGEMM)
 
     // C <- a1*op(A)*op(B) + a2*C  where  op(X) in {X, X.'}
-    void DGEMM(F77_CHARACTER_TYPE, F77_CHARACTER_TYPE,
+void FC_GLOBAL(dgemm,DGEMM)(F77_CHARACTER_TYPE, F77_CHARACTER_TYPE,
                const int*    m   , const int*    n   , const int* k  ,
                const double* a1  , const double* A   , const int* ldA,
                                    const double* B   , const int* ldB,
                const double* a2  ,       double* C   , const int* ldC);
 
+// C <- a1*A*A' + a2*C   *or*   C <- a1*A'*A + a2*C
+void FC_GLOBAL(dsyrk,DSYRK)(F77_CHARACTER_TYPE, F77_CHARACTER_TYPE,
+                            const int*    n   , const int*    k   ,
+                            const double* a1  , const double* A   , const int* ldA,
+                            const double* a2  ,       double* C   , const int* ldC);
 
-#ifdef DSYRK
-#undef DSYRK
-#endif
-#define  DSYRK F77_NAME(dsyrk,DSYRK)
-
-    // C <- a1*A*A' + a2*C   *or*   C <- a1*A'*A + a2*C
-    void DSYRK(F77_CHARACTER_TYPE, F77_CHARACTER_TYPE,
-               const int*    n   , const int*    k   ,
-               const double* a1  , const double* A   , const int* ldA,
-               const double* a2  ,       double* C   , const int* ldC);
-
-
-#ifdef DTRMM
-#undef DTRMM
-#endif
-#define  DTRMM F77_NAME(dtrmm,DTRMM)
-
-    // B <- a*op(A)*B  *or*  B <- a*B*op(A)  where op(X) \in {X, X.', X'}
-    void DTRMM(F77_CHARACTER_TYPE, F77_CHARACTER_TYPE,
-               F77_CHARACTER_TYPE, F77_CHARACTER_TYPE,
-               const int*    m   , const int* n      ,
-               const double* a   ,
-               const double* A   , const int* ldA    ,
-                     double* B   , const int* ldB);
+// B <- a*op(A)*B  *or*  B <- a*B*op(A)  where op(X) \in {X, X.', X'}
+void FC_GLOBAL(dtrmm,DTRMM)(F77_CHARACTER_TYPE, F77_CHARACTER_TYPE,
+                            F77_CHARACTER_TYPE, F77_CHARACTER_TYPE,
+                            const int*    m   , const int* n      ,
+                            const double* a   ,
+                            const double* A   , const int* ldA    ,
+                                  double* B   , const int* ldB);
 
 
-#ifdef DGEQRF
-#undef DGEQRF
-#endif
-#define  DGEQRF F77_NAME(dgeqrf,DGEQRF)
+void FC_GLOBAL(dgeqrf,DGEQRF)(const int*    m    , const int*    n   ,
+                              double* A    , const int*    ld  ,
+                              double* tau  ,       double* work,
+                              const int*    lwork,       int*    info);
 
-    void DGEQRF(const int*    m    , const int*    n   ,
-                      double* A    , const int*    ld  ,
-                      double* tau  ,       double* work,
-                const int*    lwork,       int*    info);
+void FC_GLOBAL(dorgqr,DORGQR)(const int*    m   , const int* n    , const int*    k  ,
+                              double* A   , const int* ld   , const double* tau,
+                              double* work, const int* lwork,       int*    info);
 
+void FC_GLOBAL(dgetrf,DGETRF)(const int*    m   , const int* n ,
+                                    double* A   , const int* ld,
+                                    int*    ipiv,       int* info);
 
-#ifdef DORGQR
-#undef DORGQR
-#endif
-#define  DORGQR F77_NAME(dorgqr,DORGQR)
-
-    void DORGQR(const int*    m   , const int* n    , const int*    k  ,
-                      double* A   , const int* ld   , const double* tau,
-                      double* work, const int* lwork,       int*    info);
-
-#ifdef DGETRF
-#undef DGETRF
-#endif
-#define  DGETRF F77_NAME(dgetrf,DGETRF)
-
-    void DGETRF(const int*    m   , const int* n ,
-                      double* A   , const int* ld,
-                      int*    ipiv,       int* info);
-
-#ifdef DGETRI
-#undef DGETRI
-#endif
-#define  DGETRI F77_NAME(dgetri,DGETRI)
-
-    void DGETRI(const int*    n   ,
-                      double* A   , const int* ld,
-                const int*    ipiv,
-                      double* work,       int* lwork, int* info);
+void FC_GLOBAL(dgetri,DGETRI)(const int*    n   ,
+                                    double* A   , const int* ld,
+                              const int*    ipiv,
+                                    double* work,       int* lwork, int* info);
 
 #ifdef __cplusplus
 }

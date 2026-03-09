@@ -22,6 +22,11 @@ project(opm-upscaling C CXX Fortran)
 option(SIBLING_SEARCH "Search for other modules in sibling directories?" ON)
 option(INSTALL_BENCHMARKS "Install benchmark applications?" OFF)
 
+macro(opm-upscaling_language_hook)
+  include(FortranCInterface)
+  fortrancinterface_header(${PROJECT_BINARY_DIR}/FCMacros.h MACRO_NAMESPACE FC_)
+endmacro()
+
 macro(opm-upscaling_config_hook)
   opm_need_version_of ("dune-common")
   opm_need_version_of ("dune-geometry")
@@ -34,9 +39,8 @@ macro(opm-upscaling_tests_hook)
 endmacro()
 
 macro(opm-upscaling_targets_hook)
-  # Abuse target hook. will be improved soon
-  include(UseFortranWrappers)
-  define_fc_func(APPEND ${PROJECT_BINARY_DIR}/config.h)
+  target_include_directories(opmupscaling PRIVATE ${PROJECT_BINARY_DIR})
+
   # pack these cases which are alternatives in the code
   # cannot build boost::iostreams 1.66 as c++-20.
   if(TARGET Boost::iostreams AND Boost_VERSION VERSION_GREATER 1.66)
