@@ -6,16 +6,11 @@ set (opm-upscaling_CONFIG_VAR
   HAVE_SUITESPARSE_UMFPACK
 )
 
-# CMake 3.30.0 requires to find Boost in CONFIG mode
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.30.0)
-  set(_Boost_CONFIG_MODE CONFIG)
-endif()
-
 # dependencies
 set (opm-upscaling_DEPS
   # various runtime library enhancements
   "Boost 1.44.0
-    COMPONENTS date_time iostreams REQUIRED ${_Boost_CONFIG_MODE}"
+    COMPONENTS date_time iostreams REQUIRED"
   # matrix library
   "BLAS REQUIRED"
   "LAPACK REQUIRED"
