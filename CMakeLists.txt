@@ -27,10 +27,34 @@ macro(opm-upscaling_language_hook)
   fortrancinterface_header(${PROJECT_BINARY_DIR}/FCMacros.h MACRO_NAMESPACE FC_)
 endmacro()
 
-macro(opm-upscaling_config_hook)
-  opm_need_version_of ("dune-common")
-  opm_need_version_of ("dune-geometry")
-  opm_need_version_of ("dune-istl")
+macro(opm-upscaling_prereqs_hook)
+  if(NOT TARGET SuperLU::SuperLU AND NOT TARGET SuiteSparse::UMFPACK)
+    message(FATAL_ERROR "Enable either SuperLU or UMFPACK")
+  endif()
+
+  target_link_libraries(opmupscaling
+    PUBLIC
+      opmcommon
+      opmgrid
+      Boost::date_time
+      BLAS::BLAS
+      LAPACK::LAPACK
+      dunecommon
+      dunegeometry
+      dunegrid
+      Dune::ISTL
+  )
+  if(MPI_FOUND)
+    target_link_libraries(opmupscaling PUBLIC MPI::MPI_C MPI::MPI_CXX)
+  endif()
+  if(TARGET SuperLU::SuperLU)
+    target_link_libraries(opmupscaling PUBLIC SuperLU::SuperLU)
+    target_compile_definitions(opmupscaling PUBLIC HAVE_SUPERLU=1)
+  endif()
+  if(TARGET SuiteSparse::UMFPACK)
+    target_link_libraries(opmupscaling PUBLIC SuiteSparse::UMFPACK)
+    target_compile_definitions(opmupscaling PUBLIC HAVE_SUITESPARSE_UMFPACK=1)
+  endif()
 endmacro()
 
 macro(opm-upscaling_tests_hook)
@@ -47,6 +71,7 @@ macro(opm-upscaling_targets_hook)
     include(EmbedCases.cmake)
     opm_pack_stone(upscale_relperm_benchmark)
     opm_pack_case(upscale_relperm_benchmark benchmark20)
+    target_link_libraries(upscale_relperm_benchmark PRIVATE Boost::iostreams)
 
     if(INSTALL_BENCHMARKS)
       add_custom_target(benchmarks ALL DEPENDS upscale_relperm_benchmark)
@@ -77,15 +102,19 @@ if(SIBLING_SEARCH AND NOT opm-common_DIR)
   get_filename_component(_modules_dir ${_parent_full_dir} DIRECTORY)
   if(IS_DIRECTORY ${_modules_dir}/opm-common/${_leaf_dir_name})
     set(opm-common_DIR ${_modules_dir}/opm-common/${_leaf_dir_name})
+    set(opm-grid_DIR ${_modules_dir}/opm-grid/${_leaf_dir_name})
   else()
     string(REPLACE ${PROJECT_NAME} opm-common _opm_common_leaf ${_leaf_dir_name})
     if(NOT _leaf_dir_name STREQUAL _opm_common_leaf
         AND IS_DIRECTORY ${_parent_full_dir}/${_opm_common_leaf})
       # We are using build directories named <prefix><module-name><postfix>
       set(opm-common_DIR ${_parent_full_dir}/${_opm_common_leaf})
+      string(REPLACE ${PROJECT_NAME} opm-grid _opm_grid_leaf ${_leaf_dir_name})
+      set(opm-grid_DIR ${_parent_full_dir}/${_opm_grid_leaf})
     elseif(IS_DIRECTORY ${_parent_full_dir}/opm-common)
       # All modules are in a common build dir
       set(opm-common_DIR "${_parent_full_dir}/opm-common")
+      set(opm-grid_DIR "${_parent_full_dir}/opm-grid")
     endif()
   endif()
 endif()

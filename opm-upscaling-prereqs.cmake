@@ -1,28 +1,23 @@
-# defines that must be present in config.h for our headers
-set (opm-upscaling_CONFIG_VAR
-  HAVE_SUPERLU
-  HAVE_OPENMP
-  HAVE_LAPACK
-  HAVE_SUITESPARSE_UMFPACK
-)
+find_package(Boost COMPONENTS date_time REQUIRED)
+find_package(BLAS REQUIRED)
+find_package(LAPACK REQUIRED)
+find_package(dune-common REQUIRED)
+find_package(dune-geometry REQUIRED)
+find_package(dune-grid REQUIRED)
+find_package(opm-grid REQUIRED)
+find_package(dune-istl REQUIRED)
+find_package(MPI)
 
-# dependencies
-set (opm-upscaling_DEPS
-  # various runtime library enhancements
-  "Boost 1.44.0
-    COMPONENTS date_time iostreams REQUIRED"
-  # matrix library
-  "BLAS REQUIRED"
-  "LAPACK REQUIRED"
-  # solver
-  "SuperLU"
-  # DUNE dependency
-  "dune-common REQUIRED"
-  "dune-istl REQUIRED"
-  "dune-geometry REQUIRED"
-  "dune-grid REQUIRED"
-  "opm-common REQUIRED"
-  "opm-grid REQUIRED"
-  )
-
-find_package_deps(opm-upscaling)
+if(TARGET opmupscaling)
+  get_property(opm-upscaling_COMPILE_DEFINITIONS TARGET opmupscaling PROPERTY INTERFACE_COMPILE_DEFINITIONS)
+  if(opm-upscaling_COMPILE_DEFINITIONS MATCHES HAVE_SUPERLU)
+    find_package(SuperLU REQUIRED)
+  endif()
+  if(opm-upscaling_COMPILE_DEFINITIONS MATCHES HAVE_SUITESPARSE_UMFPACK)
+    find_package(SuiteSparse COMPONENTS UMFPACK REQUIRED)
+  endif()
+else()
+  find_package(Boost COMPONENTS iostreams) # Only needed when we build opm-upscaling
+  find_package(SuiteSparse COMPONENTS UMFPACK)
+  find_package(SuperLU)
+endif()
