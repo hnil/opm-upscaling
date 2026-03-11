@@ -27,12 +27,6 @@ macro(opm-upscaling_language_hook)
   fortrancinterface_header(${PROJECT_BINARY_DIR}/FCMacros.h MACRO_NAMESPACE FC_)
 endmacro()
 
-macro(opm-upscaling_config_hook)
-  opm_need_version_of ("dune-common")
-  opm_need_version_of ("dune-geometry")
-  opm_need_version_of ("dune-istl")
-endmacro()
-
 macro(opm-upscaling_tests_hook)
   # setup extra tests (using helper binaries)
   include(compareUpscaling.cmake)
