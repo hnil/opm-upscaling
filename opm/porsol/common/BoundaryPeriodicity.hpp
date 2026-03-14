@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <array>
 #include <iostream>
+#include <numbers>
 #include <vector>
 
 namespace Opm
@@ -65,11 +66,11 @@ namespace Opm
 	}
 
     private:
-	double cmpval() const
-	{
-            const double pi = 3.14159265358979323846264338327950288;
-	    return centroid[(canon_pos/2 + 1)%3] + pi*centroid[(canon_pos/2 + 2)%3];
-	}
+        double cmpval() const
+        {
+            return centroid[(canon_pos/2 + 1)%3]
+                +  std::numbers::pi*centroid[(canon_pos/2 + 2)%3];
+        }
     };
 
 

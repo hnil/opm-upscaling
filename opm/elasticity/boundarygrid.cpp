@@ -20,6 +20,7 @@
 #include <cmath>
 #include <cstddef>
 #include <iostream>
+#include <numbers>
 #include <vector>
 
 namespace Opm {
@@ -281,8 +282,8 @@ bool BoundaryGrid::cubicSolve(double eps, double A, double B, double C,
     if (W <= -epsmall && P < 0) {
       double FI = acos(-Q/sqrt(-P*P*P));
       X.push_back( 2*std::sqrt(-P)*std::cos(FI/3));
-      X.push_back(-2*std::sqrt(-P)*std::cos((FI+M_PI)/3));
-      X.push_back(-2*std::sqrt(-P)*std::cos((FI-M_PI)/3));
+      X.push_back(-2*std::sqrt(-P)*std::cos((FI+std::numbers::pi)/3));
+      X.push_back(-2*std::sqrt(-P)*std::cos((FI-std::numbers::pi)/3));
     } else if (std::fabs(W) < epsmall && Q < 0) {
       X.push_back(2*std::pow(-Q,1.f/3));
       X.push_back(-.5f*X[0]);

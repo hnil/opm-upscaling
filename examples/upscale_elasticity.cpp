@@ -49,6 +49,7 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include <numbers>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -57,10 +58,6 @@
 #include <unistd.h>
 
 using namespace Opm::Elasticity;
-
-#ifndef M_PI
-#define M_PI std::acos(-1.0)
-#endif
 
 //! \brief Display the available command line parameters
 void syntax(char** argv)
@@ -176,7 +173,7 @@ void parseCommandLine(int argc, char** argv, Params& p)
   if (method == "none")
     p.method = UPSCALE_NONE;
   p.Emin     = param.getDefault<double>("Emin",0.0);
-  p.dip      = param.getDefault<double>("dip_angle", M_PI/2);
+  p.dip      = param.getDefault<double>("dip_angle", std::numbers::pi/2);
   p.azimuth  = param.getDefault<double>("azimuth_angle", 0.0);
   p.ctol     = param.getDefault<double>("ctol",1.e-6);
 #ifndef HAVE_OLD_CPGRID_API
