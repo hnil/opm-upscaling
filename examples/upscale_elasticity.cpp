@@ -40,8 +40,19 @@
 #include <opm/elasticity/elasticity_upscale.hpp>
 #include <opm/elasticity/matrixops.hpp>
 
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <cstdio>
 #include <cstring>
+#include <ctime>
+#include <fstream>
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 #include <unistd.h>
 
@@ -180,7 +191,7 @@ void parseCommandLine(int argc, char** argv, Params& p)
   p.verbose  = param.getDefault<bool>("verbose",false);
   p.outputSpeeds = param.getDefault<bool>("output_wave_speeds",false);
   p.inspect  = param.getDefault<std::string>("inspect","");
-  size_t i;
+  std::size_t i;
   if ((i=p.vtufile.find(".vtu")) != std::string::npos)
     p.vtufile = p.vtufile.substr(0,i);
 
@@ -221,7 +232,7 @@ void writeOutput(const Params& p, Opm::time::StopWatch& watch, int cells,
   f << "######################################################################" << std::endl
     << "# Results from upscaling elastic moduli." << std::endl
     << "#" << std::endl
-    << "# Finished: " << asctime(timeinfo)
+    << "# Finished: " << std::asctime(timeinfo)
     << "# Hostname: " << hostname << std::endl
     << "#" << std::endl
     << "# Upscaling time: " << watch.secsSinceStart() << " secs" << std::endl
@@ -253,11 +264,11 @@ void writeOutput(const Params& p, Opm::time::StopWatch& watch, int cells,
   f << "#" << std::endl;
   if (bySat) {
     f << "# SATNUM: " << volume.size() << std::endl;
-    for (size_t i=0;i<volume.size();++i)
+    for (std::size_t i=0;i<volume.size();++i)
       f << "#\t SATNUM " << i+1 << ": " << volume[i]*100 << "%" << std::endl;
   } else {
     f <<"# Materials: " << volume.size() << std::endl;
-    for (size_t i=0;i<volume.size();++i)
+    for (std::size_t i=0;i<volume.size();++i)
       f << "#\t Material" << i+1 << ": " << volume[i]*100 << "%" << std::endl;
   }
   if (upscaledRho > 0) {
@@ -316,7 +327,7 @@ int run(Params& p)
       double lz = p.max[2]-p.min[2];
       int nz = grid.logicalCartesianSize()[2];
       double hz = lz/nz;
-      double lp = sqrt((double)(p.max[0]-p.min[0])*(p.max[1]-p.min[1]));
+      double lp = std::sqrt((double)(p.max[0]-p.min[0])*(p.max[1]-p.min[1]));
       int np = std::max(grid.logicalCartesianSize()[0],
                         grid.logicalCartesianSize()[1]);
       double hp = lp/np;
@@ -334,7 +345,7 @@ int run(Params& p)
       double hx = (p.max[0]-p.min[0])/grid.logicalCartesianSize()[0];
       double hy = (p.max[1]-p.min[1])/grid.logicalCartesianSize()[1];
       double hz = (p.max[2]-p.min[2])/grid.logicalCartesianSize()[2];
-      double aspect = sqrt(hx*hy)/hz;
+      double aspect = std::sqrt(hx*hy)/hz;
       std::cout << "Estimated cell aspect ratio: " << aspect;
       if (aspect > 80) {
         p.linsolver.pre = TWOLEVEL;
@@ -383,27 +394,27 @@ int run(Params& p)
       std::cout << "processing case " << i+1 << "..." << std::endl;
       if (p.inspect == "results") {
         char temp[1024];
-        sprintf(temp, p.resultfilename.c_str(), "x", i+1);
+        std::snprintf(temp, std::size(temp), p.resultfilename.c_str(), "x", i+1);
         Dune::loadMatrixMarket(upscale.u[i], temp);
       } else {
         std::cout << "\tassembling load vector..." << std::endl;
         upscale.assemble(i,false);
         if (p.inspect == "load") {
           char temp[1024];
-          sprintf(temp, p.resultfilename.c_str(), "b", i+1);
+          std::snprintf(temp, std::size(temp), p.resultfilename.c_str(), "b", i+1);
           Dune::storeMatrixMarket(upscale.b[i], temp);
         }
         std::cout << "\tsolving..." << std::endl;
         upscale.solve(i);
         if (p.inspect == "load") {
           char temp[1024];
-          sprintf(temp, p.resultfilename.c_str(), "x", i+1);
+          std::snprintf(temp, std::size(temp), p.resultfilename.c_str(), "x", i+1);
           Dune::storeMatrixMarket(upscale.u[i], temp);
         }
       }
       upscale.A.expandSolution(field[i],upscale.u[i]);
 #define CLAMP(x) (fabs(x)<1.e-4?0.0:x)
-      for (size_t j=0;j<field[i].size();++j) {
+      for (std::size_t j=0;j<field[i].size();++j) {
         double val = field[i][j];
         field[i][j] = CLAMP(val);
       }
@@ -470,9 +481,9 @@ int main(int argc, char** argv)
 try
 {
   try {
-    if (argc < 2 || strcmp(argv[1],"-h") == 0
-                 || strcmp(argv[1],"--help") == 0
-                 || strcmp(argv[1],"-?") == 0) {
+    if (argc < 2 || std::strcmp(argv[1],"-h") == 0
+                 || std::strcmp(argv[1],"--help") == 0
+                 || std::strcmp(argv[1],"-?") == 0) {
       syntax(argv);
       exit(1);
     }

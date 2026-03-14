@@ -15,8 +15,12 @@
 
 #include "boundarygrid.hh"
 
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstddef>
 #include <iostream>
-
+#include <vector>
 
 namespace Opm {
 namespace Elasticity {
@@ -181,7 +185,7 @@ int BoundaryGrid::Q4inv(FaceCoord& res, const Quad& q,
   // check that obtained solutions are inside element
   double tol = 1+epsOut;
   int nInside=0;
-  for (size_t i=0;i<xi.size();++i) {
+  for (std::size_t i=0;i<xi.size();++i) {
     if (xi[i] < tol && eta[i] < tol) {
       if (++nInside > 1) {
         std::cout << "multiple solutions" << std::endl;
@@ -217,17 +221,17 @@ bool BoundaryGrid::bilinearSolve(double epsilon, double order,
   double tol = 0;
   // geometric tolerance ?
   for (int i=0;i<4;++i) {
-    double det = fabs(A[i]);
+    double det = std::fabs(A[i]);
     if (det > tol) tol = det;
-    det = fabs(B[i]);
+    det = std::fabs(B[i]);
     if (det > tol) tol = det;
   }
   tol *= epsilon;
 
   double det = A[1]*B[2]-B[1]*A[2];
-  if (fabs(A[0]) < tol && fabs(B[0]) < tol) {
+  if (std::fabs(A[0]) < tol && std::fabs(B[0]) < tol) {
     // linear eqs
-    if (fabs(det) < tol*tol) return false;
+    if (std::fabs(det) < tol*tol) return false;
     X.push_back((B[2]*A[3]-A[2]*B[3])/det);
     Y.push_back((-B[1]*A[3]+A[1]*B[3])/det);
     return true;
@@ -238,9 +242,9 @@ bool BoundaryGrid::bilinearSolve(double epsilon, double order,
   double Q2 = A[0]*B[1]-B[0]*A[1];
   std::vector<double> Z;
   cubicSolve(epsilon,0,Q2,Q1,Q0,Z);
-  for (size_t i=0;i<Z.size();++i) {
+  for (std::size_t i=0;i<Z.size();++i) {
     Q0 = A[0]*Z[i]+A[2];
-    if (fabs(Q0) > tol) {
+    if (std::fabs(Q0) > tol) {
       X.push_back(Z[i]);
       Y.push_back((A[3]-A[1]*Z[i])/Q0);
     }
@@ -250,12 +254,12 @@ bool BoundaryGrid::bilinearSolve(double epsilon, double order,
   Q2 = A[0]*B[2]-B[0]*A[2];
   Z.clear();
   cubicSolve(epsilon,0,Q2,Q1,Q0,Z);
-  for (size_t i=0;i<Z.size();++i) {
+  for (std::size_t i=0;i<Z.size();++i) {
     Q0 = A[0]*Z[i]+A[1];
-    if (fabs(Q0) > tol) {
-      size_t j=0;
+    if (std::fabs(Q0) > tol) {
+      std::size_t j=0;
       for (j=0;j<Y.size();++j)
-        if (fabs(Y[j]-Z[i]) <= epsilon*order) break;
+        if (std::fabs(Y[j]-Z[i]) <= epsilon*order) break;
       if (j == Y.size()) {
         X.push_back((A[3]-A[2]*Z[i])/Q0);
         Y.push_back(Z[i]);
@@ -269,31 +273,31 @@ bool BoundaryGrid::bilinearSolve(double epsilon, double order,
 bool BoundaryGrid::cubicSolve(double eps, double A, double B, double C,
                               double D, std::vector<double>& X) const
 {
-  if (fabs(A) > eps) { // cubic
+  if (std::fabs(A) > eps) { // cubic
     double epsmall = pow(eps,6.f);
     double P = (C-B*B/(3*A))/(3*A);
     double Q = ((2*B*B/(27*A)-C/3)*B/A+D)/(2*A);
     double W = Q*Q+P*P*P;
     if (W <= -epsmall && P < 0) {
       double FI = acos(-Q/sqrt(-P*P*P));
-      X.push_back( 2*sqrt(-P)*cos(FI/3));
-      X.push_back(-2*sqrt(-P)*cos((FI+M_PI)/3));
-      X.push_back(-2*sqrt(-P)*cos((FI-M_PI)/3));
-    } else if (fabs(W) < epsmall && Q < 0) {
-      X.push_back(2*pow(-Q,1.f/3));
+      X.push_back( 2*std::sqrt(-P)*std::cos(FI/3));
+      X.push_back(-2*std::sqrt(-P)*std::cos((FI+M_PI)/3));
+      X.push_back(-2*std::sqrt(-P)*std::cos((FI-M_PI)/3));
+    } else if (std::fabs(W) < epsmall && Q < 0) {
+      X.push_back(2*std::pow(-Q,1.f/3));
       X.push_back(-.5f*X[0]);
       X.push_back(X[1]);
-    } else if (W > -epsmall && Q+sqrt(W) < 0 && Q-sqrt(W) < 0) {
-      X.push_back(pow(-Q+sqrt(W),1.f/3)+pow(-Q-sqrt(W),1.f/3));
+    } else if (W > -epsmall && Q+std::sqrt(W) < 0 && Q-std::sqrt(W) < 0) {
+      X.push_back(pow(-Q+std::sqrt(W),1.f/3)+std::pow(-Q-std::sqrt(W),1.f/3));
       X.push_back(-.5f*X[0]);
       X.push_back(X[1]);
-    } else if (W >= epsmall && fabs(Q) > epsmall && P > 0) {
-      double FI = atan(sqrt(P*P*P)/Q);
-      double KI = atan(pow(tan(.5f*FI),1.f/3));
-      X.push_back(-2*sqrt(P)/tan(KI+KI));
+    } else if (W >= epsmall && std::fabs(Q) > epsmall && P > 0) {
+      double FI = std::atan(std::sqrt(P*P*P)/Q);
+      double KI = std::atan(std::pow(tan(.5f*FI),1.f/3));
+      X.push_back(-2*std::sqrt(P)/std::tan(KI+KI));
       X.push_back(-.5f*X[0]);
       X.push_back(X[1]);
-    } else if (W > -epsmall && fabs(Q) > epsmall && P < 0)
+    } else if (W > -epsmall && std::fabs(Q) > epsmall && P < 0)
       return false;
     else
       return false;
@@ -304,11 +308,11 @@ bool BoundaryGrid::cubicSolve(double eps, double A, double B, double C,
     X[2] -= W;
 
     return true;
-  } else if (fabs(B) > eps) {
-    double epsmall = pow(eps,4.f);
+  } else if (std::fabs(B) > eps) {
+    double epsmall = std::pow(eps,4.f);
     double P = C*C-4*B*D;
     if (P > 0) {
-      double Q = sqrt(P);
+      double Q = std::sqrt(P);
       X.push_back((-C+Q)/(B+B));
       X.push_back((-C-Q)/(B+B));
     } else if (P > -epsmall) {
@@ -317,7 +321,7 @@ bool BoundaryGrid::cubicSolve(double eps, double A, double B, double C,
     }
     else
       return false;
-  } else if (fabs(C) > eps) {
+  } else if (std::fabs(C) > eps) {
     X.push_back(-D/C);
   } else
     return false;

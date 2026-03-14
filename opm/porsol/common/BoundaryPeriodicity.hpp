@@ -20,14 +20,14 @@
 #ifndef OPM_BOUNDARYPERIODICITY_HEADER_INCLUDED
 #define OPM_BOUNDARYPERIODICITY_HEADER_INCLUDED
 
-
 #include <dune/common/fvector.hh>
-#include <array>
+
 #include <opm/common/ErrorMacros.hpp>
 
 #include <algorithm>
-#include <vector>
+#include <array>
 #include <iostream>
+#include <vector>
 
 namespace Opm
 {

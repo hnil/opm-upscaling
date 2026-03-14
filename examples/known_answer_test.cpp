@@ -64,14 +64,15 @@
 
 #include <opm/upscaling/initCPGrid.hpp>
 
-
-
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cmath>
 #include <iomanip>
 #include <iostream>
-
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 // ------------ Specifying the solution ------------
 
