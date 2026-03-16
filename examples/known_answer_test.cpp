@@ -64,14 +64,16 @@
 
 #include <opm/upscaling/initCPGrid.hpp>
 
-
-
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cmath>
 #include <iomanip>
 #include <iostream>
-
+#include <numbers>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 // ------------ Specifying the solution ------------
 
@@ -81,13 +83,13 @@ namespace {
 
     double u(const Vec& x)
     {
-        const double pi = 3.14159265358979323846264338327950288;
+        constexpr auto pi = std::numbers::pi;
         return std::sin(2*pi*x[0]) * std::cos(2*pi*x[1]) * x[2];
     }
 
     double Lu(const Vec& x)
     {
-        const double pi = 3.14159265358979323846264338327950288;
+        constexpr auto pi = std::numbers::pi;
         return -2 * 2*pi * 2*pi * std::sin(2*pi*x[0]) * std::cos(2*pi*x[1]) * x[2];
     }
 
