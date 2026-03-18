@@ -53,7 +53,6 @@ macro(opm-upscaling_prereqs_hook)
   endif()
   if(TARGET SuiteSparse::UMFPACK)
     target_link_libraries(opmupscaling PUBLIC SuiteSparse::UMFPACK)
-    target_compile_definitions(opmupscaling PUBLIC HAVE_SUITESPARSE_UMFPACK=1)
   endif()
 endmacro()
 
